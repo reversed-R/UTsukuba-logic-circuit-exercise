@@ -11,6 +11,7 @@
 
 void write_a_digit(byte digit, byte data);
 void clear_7seg();
+void write_10bits_to_4_digits(unsigned int bits);
 
 void setup() {
   pinMode(A1, INPUT);
@@ -28,19 +29,10 @@ void setup() {
 
 void loop() {
   unsigned int vr;
-  byte digit[4];
+  byte digits[4];
   vr = analogRead(A1);
   
-  digit[0] = vr % 10;
-  digit[1] = (vr / 10) % 10;
-  digit[2] = (vr / 100) % 10;
-  digit[3] = vr / 1000;
-  
-  for (byte i = 0; i < 4; i++) {
-    write_a_digit(i , digit[i]);
-    delay(1);
-    clear_7seg();
-  }
+  write_10bits_to_4_digits(vr);
 }
 
 void write_a_digit(byte digit, byte data) {
@@ -95,5 +87,19 @@ void clear_7seg() {
     digitalWrite(SEG_C, 0);
     digitalWrite(SEG_B, 0);
     digitalWrite(SEG_A, 0);
+  }
+}
+
+void write_10bits_to_4_digits(unsigned int bits) {
+  byte digits[4];
+  digits[0] = bits % 10;
+  digits[1] = (bits / 10) % 10;
+  digits[2] = (bits / 100) % 10;
+  digits[3] = (bits / 1000) % 10;
+  
+  for (byte i = 0; i < 4; i++) {
+    write_a_digit(i , digits[i]);
+    delay(1);
+    clear_7seg();
   }
 }
