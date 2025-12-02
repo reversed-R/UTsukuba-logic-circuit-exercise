@@ -14,9 +14,12 @@
 #define COUNT_UP_INTERVAL_MILLISEC_LEVEL2 80
 #define COUNT_UP_INTERVAL_MILLISEC_LEVEL3 20
 
+#include <TimerOne.h>
+
 void write_a_digit(byte digit, byte data);
 void clear_7seg();
 void write_10bits_to_4_digits(unsigned int bits);
+void count_up();
 
 void setup() {
   pinMode(A1, INPUT);
@@ -30,6 +33,11 @@ void setup() {
   pinMode(SEG_A, OUTPUT);
   pinMode(SEG7_BIN0, OUTPUT);
   pinMode(SEG7_BIN1, OUTPUT);
+
+  Timer1.initialize(1000000); // micro second でリセット間隔を指定
+  Timer1.attachInterrupt(count_up); 
+
+  Serial.begin(9600);
 }
 
 unsigned int count = 0;
@@ -40,7 +48,6 @@ void loop() {
   static unsigned long clicked = 0; // スイッチ押し始めの時刻
   static unsigned long last_beat = 0; // キーリピートした時刻
   unsigned int now; // 現在時刻
-  static unsigned int count = 0; // 内部に保持するカウンタ
   unsigned int tmp; // 10 進数に変換するための一時変数
   byte i; // ループ制御変数
   current_sw = digitalRead(16); // 現在のスイッチの状態を読む // 16 = A2 共用ピン
@@ -143,4 +150,10 @@ void write_10bits_to_4_digits(unsigned int bits) {
     delay(1);
     clear_7seg();
   }
+}
+
+void count_up() {
+  count++;
+  write_10bits_to_4_digits(count);
+  Serial.println(count);
 }
