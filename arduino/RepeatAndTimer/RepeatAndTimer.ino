@@ -9,9 +9,8 @@
 #define SEG7_BIN0 10
 #define SEG7_BIN1 11
 
-#define COUNT_UP_INTERVAL_MILLISEC 100
-#define COUNT_UP_INTERVAL_MILLISEC_LEVEL1 500
-#define COUNT_UP_INTERVAL_MILLISEC_LEVEL2 80
+#define COUNT_UP_INTERVAL_MILLISEC_LEVEL1 1000
+#define COUNT_UP_INTERVAL_MILLISEC_LEVEL2 100
 #define COUNT_UP_INTERVAL_MILLISEC_LEVEL3 20
 
 #include <TimerOne.h>
@@ -68,7 +67,7 @@ void loop() {
         count++;
         count_sequential++;
         clicked += count_up_interval;
-        count_up_interval = count_sequential > 30 ? COUNT_UP_INTERVAL_MILLISEC_LEVEL3 : (count_sequential > 2 ? COUNT_UP_INTERVAL_MILLISEC_LEVEL2: COUNT_UP_INTERVAL_MILLISEC_LEVEL1);
+        count_up_interval = count_sequential > 50 ? COUNT_UP_INTERVAL_MILLISEC_LEVEL3 : (count_sequential > 1 ? COUNT_UP_INTERVAL_MILLISEC_LEVEL2: COUNT_UP_INTERVAL_MILLISEC_LEVEL1);
       }
     }
   } else {
