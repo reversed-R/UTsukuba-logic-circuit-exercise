@@ -50,7 +50,6 @@ void setup() {
   pinMode(2, OUTPUT);
 
   Timer1.initialize(1000000); // micro second でリセット間隔を指定
-  Timer1.attachInterrupt(count_down); 
 
   Serial.begin(9600);
 }
@@ -81,27 +80,35 @@ void loop() {
   
   unsigned int now = millis(); // 現在時刻を記憶
 
-  static unsigned long count_up_interval = COUNT_UP_INTERVAL_MILLISEC_LEVEL2;
+  static unsigned long count_up_interval = COUNT_UP_INTERVAL_MILLISEC_LEVEL1;
 
   switch(state) {
     case TimerStateSetting:
       if(change_mode == HIGH) {
         if(last_change_mode_sw == LOW && timecount > 0) {
           state = TimerStateCountDown;
+          Timer1.detachInterrupt(); 
+          Timer1.attachInterrupt(count_down); 
         }
       }
       
       if(incre_sw == HIGH) {
         if(last_incre_sw == LOW){
+          timecount++;
           last_beat = now;
           state = TimerStateSettingIncrement;
+          count_up_interval = COUNT_UP_INTERVAL_MILLISEC_LEVEL1;
         }
       }
       
       if(decre_sw == HIGH) {
         if(last_decre_sw == LOW){
+          if(timecount > 0) {
+            timecount--;
+          }
           last_beat = now;
           state = TimerStateSettingDecrement;
+          count_up_interval = COUNT_UP_INTERVAL_MILLISEC_LEVEL1;
         }
       }
 
@@ -111,6 +118,7 @@ void loop() {
         if(now - last_beat > count_up_interval) {
           timecount++;
           last_beat = now;
+          count_up_interval = COUNT_UP_INTERVAL_MILLISEC_LEVEL2;
         }
       } else {
         state = TimerStateSetting;
@@ -124,6 +132,7 @@ void loop() {
             timecount--;
           }
           last_beat = now;
+          count_up_interval = COUNT_UP_INTERVAL_MILLISEC_LEVEL2;
         }
       } else {
         state = TimerStateSetting;
@@ -233,11 +242,18 @@ unsigned int seconds_to_mmss_format(unsigned int sec) {
 }
 
 void count_down() {
+  static bool is_first_count_down_sec = true;
+  
   if(state == TimerStateCountDown) {
     if(timecount > 0) {
-      timecount--;
+      if(!is_first_count_down_sec) {
+        timecount--;
+      } else {
+        is_first_count_down_sec = false;
+      }
     } else {
       state = TimerStateBeep;
+      is_first_count_down_sec = true;
     }
   }
   
